@@ -1,0 +1,235 @@
+<DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>pca-whitening</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Learner | Practitioner">
+    <link rel="canonical" href="http://localhost:4000/2020/09/01/pca-whitening/">
+    <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="zzh's blog posts" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Personal visit times -->
+    <script>
+	var _hmt = _hmt || [];
+	(function() {
+  		var hm = document.createElement("script");
+  		hm.src = "//hm.baidu.com/hm.js?39e5930446e371d66d738fef008c3ce2";
+  		var s = document.getElementsByTagName("script")[0];
+  		s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+
+  <script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+       <script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+           tex2jax: {
+             inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+             processEscapes: true
+           }
+         });
+       </script>
+       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+ </head>
+
+
+    <body>
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <div style="float:left; margin-top:10px; margin-right:10px;"></div>
+
+    <a class="site-title" href="/">zzh's blog</a>
+    
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+</a>
+      <div class="trigger">
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+  </div>
+  <!-- Personal visit times -->
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?39e5930446e371d66d738fef008c3ce2";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+ </header>
+
+
+    <!--<div class="page-content" style="background-color:#F8F8FF;">-->
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>pca-whitening</h1>
+    <p class="meta">Sep 1, 2020</p>
+  </header>
+
+  <article class="post-content">
+  <p>Dealing with image data, the raw input is redundant, since adjacent pixel values are highly correlated. The purpose of <strong>whitening</strong> is to i) make features less correlated with each other. ii) give all of the features the same variance.</p>
+
+<p>Recall the last post about <a href="/2020/09/01/pca/">PCA</a>, the eigenvectors are orthogonal vectors. If we get the eigenvectors of data set, and we project data onto the new space, naturally, the first purpose of whitening will be satisfied. So, <strong>whitening</strong> can be two-step:</p>
+
+<ol>
+  <li>PCA on the data set $X$ and get the new $X^\prime$</li>
+  <li>Normalize the covariance to make them equal to 1.</li>
+</ol>
+
+<p>Let’s dive into the code. First, we generate some data points.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+<span class="c1"># generate sample data points.
+</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+<span class="n">delta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,))</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mf">.4</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span><span class="mi">3</span> <span class="o">+</span> <span class="n">delta</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([[</span><span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="/images/2020-09-01-pca-whitening/raw_data.png#center" alt="" />
+<em>raw image data points</em></p>
+
+<p>We first perform PCA on data matrix:</p>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cov_mat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">cov_mat</span><span class="p">)</span>
+
+<span class="n">u1</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># [-0.94212686, -0.3352566 ]
+</span><span class="n">u2</span> <span class="o">=</span> <span class="n">U</span><span class="p">[:,</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># [-0.3352566 ,  0.94212686]
+</span></code></pre></div></div>
+<p>We obtain two eigenvectors: <code class="highlighter-rouge">u1</code>, <code class="highlighter-rouge">u2</code>, which are column vectors of <code class="highlighter-rouge">U</code>, and display the two eigenvector in orignal space. We change the director of <code class="highlighter-rouge">u1</code> here to make it fit the plot.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">40</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="o">-</span><span class="n">u1</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span><span class="p">,</span><span class="o">-</span><span class="n">u1</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">50</span><span class="p">,</span> <span class="n">head_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'red'</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">arrow</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">u2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="mi">20</span><span class="p">,</span> <span class="n">u2</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="mi">20</span><span class="p">,</span> <span class="n">head_width</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">'green'</span><span class="p">)</span>
+</code></pre></div></div>
+<p><img src="/images/2020-09-01-pca-whitening/eigen_vectors.png#center" alt="" />
+<em>two eigenvectors in original space</em></p>
+
+<p>Then we project data matrix onto the new space under two orthogonal vectors <code class="highlighter-rouge">u1</code> and <code class="highlighter-rouge">u2</code>.</p>
+
+<script type="math/tex; mode=display">X^\prime = XU</script>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">p_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">U</span><span class="p">)</span>
+</code></pre></div></div>
+<p><img src="/images/2020-09-01-pca-whitening/project_data.png#center" alt="" />
+<em>projected data</em></p>
+
+<p>After PCA, we need normalize the variance of each dim.</p>
+
+<script type="math/tex; mode=display">X^{\prime\prime} = \frac{X^\prime}{\sqrt{\lambda_i+\epsilon}}</script>
+
+<p>where $\lambda_i$ is the i-th eigenvalue of covariance, which is also the variance of i-th feature. So we divide $X^\prime$ by $\sqrt{\lambda_i}$ to make sure unit variance of each feature. $\epsilon$ is to avoid zero-divided error.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">update_lam</span> <span class="o">=</span> <span class="n">S</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="mf">1e-5</span><span class="p">,</span> <span class="mf">1e-5</span><span class="p">])</span>
+<span class="n">sqrt_update_lam</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">update_lam</span><span class="p">)</span>
+<span class="n">w_data</span> <span class="o">=</span> <span class="n">p_data</span> <span class="o">/</span> <span class="n">sqrt_update_lam</span>
+</code></pre></div></div>
+<p>Finally we plot whitening data.
+<img src="/images/2020-09-01-pca-whitening/whitening_data.png#center" alt="" />
+<em>whitening data</em></p>
+
+<p>If we want to do ZCA, we just need mutiply $U^\top$ to map back to original space.</p>
+
+<script type="math/tex; mode=display">X^{\prime\prime\prime} = X^{\prime\prime}U^\top</script>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">zca_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">w_data</span><span class="p">,</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+</code></pre></div></div>
+<p><img src="/images20-p9a-1hitening/zca_whitening.png#center" alt="" />
+<em>zca whitening data</em></p>
+
+<p><strong>About why whitening is beneficial?</strong> Quote from <a href="http://mccormickml.com/2014/06/03/deep-learning-tutorial-pca-and-whitening/">here</a></p>
+
+<blockquote>
+  <p>“This is a common trick to simplify optimization process to find weights. If the input signal has correlating inputs (some linear dependency) then the [cost] function will tend to have “river-like” minima regions rather than minima points in weights space. As to input whitening - similar thing - if you don’t do it - error function will tend to have non-symmetrical minima “caves” and since some training algorithms have equal speed of update for all weights - the minimization may tend to skip good places in narrow dimensions of the minima while trying to please the wider ones. So it does not directly relate to deep learning. If your optimization process converges well - you can skip this pre-processing.”</p>
+</blockquote>
+
+  </article>
+
+  <!-- mathjax -->
+  
+  </div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <!-- <h2 class="footer-heading">zzh's blog</h2> -->
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>zzh's blog</li>
+        <!-- <li><a href="mailto:"></a></li> -->
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/zzh2019bay">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username">zzh2019bay</span>
+          </a>
+        </li>
+       </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">Learner | Practitioner</p>
+    </div>
+
+  </div>
+  
+</footer>
+
+
+    </body>
+</html>

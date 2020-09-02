@@ -1,0 +1,276 @@
+<DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>pca</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="description" content="Learner | Practitioner">
+    <link rel="canonical" href="http://localhost:4000/2020/09/01/pca/">
+    <link href="/feed.xml" type="application/atom+xml" rel="alternate" title="zzh's blog posts" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Personal visit times -->
+    <script>
+	var _hmt = _hmt || [];
+	(function() {
+  		var hm = document.createElement("script");
+  		hm.src = "//hm.baidu.com/hm.js?39e5930446e371d66d738fef008c3ce2";
+  		var s = document.getElementsByTagName("script")[0];
+  		s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+
+  <script type="text/x-mathjax-config"> MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } }); </script>
+       <script type="text/x-mathjax-config">
+         MathJax.Hub.Config({
+           tex2jax: {
+             inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+             processEscapes: true
+           }
+         });
+       </script>
+       <script src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" type="text/javascript"></script>
+
+ </head>
+
+
+    <body>
+    <header class="site-header">
+
+  <div class="wrap">
+
+    <div style="float:left; margin-top:10px; margin-right:10px;"></div>
+
+    <a class="site-title" href="/">zzh's blog</a>
+    
+    <nav class="site-nav">
+      <a href="#" class="menu-icon">
+        <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+           viewBox="0 0 18 15" enable-background="new 0 0 18 15" xml:space="preserve">
+          <path fill="#505050" d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0
+            h15.031C17.335,0,18,0.665,18,1.484L18,1.484z"/>
+          <path fill="#505050" d="M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0c0-0.82,0.665-1.484,1.484-1.484
+            h15.031C17.335,6.031,18,6.696,18,7.516L18,7.516z"/>
+          <path fill="#505050" d="M18,13.516C18,14.335,17.335,15,16.516,15H1.484C0.665,15,0,14.335,0,13.516l0,0
+            c0-0.82,0.665-1.484,1.484-1.484h15.031C17.335,12.031,18,12.696,18,13.516L18,13.516z"/>
+        </svg>
+</a>
+      <div class="trigger">
+        
+          
+        
+          
+        
+      </div>
+    </nav>
+  </div>
+  <!-- Personal visit times -->
+  <script>
+  var _hmt = _hmt || [];
+  (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?39e5930446e371d66d738fef008c3ce2";
+      var s = document.getElementsByTagName("script")[0]; 
+      s.parentNode.insertBefore(hm, s);
+  })();
+  </script>
+ </header>
+
+
+    <!--<div class="page-content" style="background-color:#F8F8FF;">-->
+    <div class="page-content">
+      <div class="wrap">
+      <div class="post">
+
+  <header class="post-header">
+    <h1>pca</h1>
+    <p class="meta">Sep 1, 2020</p>
+  </header>
+
+  <article class="post-content">
+  <p>The definition of PCA is the orthogonal projection of the data onto a lower dimensional linear space, such that the variance of the projected data is maximized.</p>
+
+<p>Assuming we have $m$ data points in our data set, and each data point is a $n$-dim vector. The mean vector for $n$ features are defined as following:</p>
+
+<script type="math/tex; mode=display">\mathbf{\bar{x}} = \frac{1}{m}\Sigma_{i}^{m}\mathbf{x}_i</script>
+
+<p>Let us define $\mu_1$ as the direction of projection, which is a unit vector, so that $\mu_1^\top\mu_1=1$. The variance of data ($\mathbf{x}_i-\mathbf{\bar{x}}$) after zero-centered and projected on $\mu_1$ is $(\mathbf{x}_i-\mathbf{\bar{x}})^\top\mu_1$, the total variance of data is given by the following:</p>
+
+<script type="math/tex; mode=display">J = \frac{1}{m}\cdot\Sigma_{i}^{m}((\mathbf{x}_i-\mathbf{\bar{x}})^\top\mu_1)^2 \\
+   J = \frac{1}{m}\cdot(\mathbf{x^\prime}^\top\mu_1)^2 \\
+   J = \frac{1}{m}\cdot(\mathbf{x^\prime}^\top\mu_1)^T(\mathbf{x^\prime}^\top\mu_1) \\
+   J = \frac{1}{m}\cdot\mu_1^\top\mathbf{x^\prime}\mathbf{x^\prime}^\top\mu_1</script>
+
+<p>where $\mathbf{x^\prime}$ is the zero-centered data. Let $\mathbf{S}=\frac{1}{m}\cdot\mathbf{x^\prime}\mathbf{x^\prime}^\top$, the Eq(2) is converted to:</p>
+
+<script type="math/tex; mode=display">J = \mu_1^\top\mathbf{S}\mu_1</script>
+
+<p>Since the constraint: $\mu_1^\top\mu_1=1$, after introducing a Lagrange multiplier, and then make an unconstrained maximization of:</p>
+
+<script type="math/tex; mode=display">\tilde{J} = \mu_1^\top\mathbf{S}\mu_1 + \lambda_1(1-\mu_1^\top\mu_1) \\
+    \frac{\partial\tilde{J}}{\partial\mu_1} = (\mathbf{S} + \mathbf{S}^\top)\mu_1-2\lambda_1\mu_1 = 2\mathbf{S}\mu_1 - 2\lambda_1\mu_1 = 0</script>
+
+<p>which says that $\mu_1$ must be an eigenvector of $\mathbf{S}$, and we left-multiply by $\mu_1^\top$ and make use of $\mu_1^\top\mu_1=1$, we see that the variance is given by:</p>
+
+<script type="math/tex; mode=display">\mu_1^\top\mathbf{S}\mu_1 = \lambda_1</script>
+
+<p>So the variance will be a maximum when we set $\mu_1$ equal to the eigenvector having the largest eigenvalue $\lambda_1$</p>
+
+<p>Let’s dive into some python snippets to show PCA implementations.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+
+<span class="c1"># construct data points
+</span><span class="n">x1</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+<span class="n">x3</span> <span class="o">=</span> <span class="p">[</span><span class="mi">9</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="n">_X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span><span class="n">x2</span><span class="p">,</span><span class="n">x3</span><span class="p">])</span>
+
+<span class="c1"># zero-meaned data
+</span><span class="n">X</span> <span class="o">=</span> <span class="n">_X</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">_X</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>Since $X$ is zero-meaned, we can directly use $\frac{1}{m-1}X^\top X$ to compute covariance. $m$ is the number of data points. Use <code class="highlighter-rouge">np.cov</code>, we do not need zero-mean first. Actually, whether zero-meaned or not, it won’t affect the covariance.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cov_mat0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">cov_mat1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">_X</span><span class="p">,</span> <span class="n">rowvar</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">cov_mat0</code> should be equal to <code class="highlighter-rouge">cov_mat1</code>.</p>
+
+<h5 id="1-use-svd-on-covariance-matrix">1) Use <code class="highlighter-rouge">svd</code> on covariance matrix</h5>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">U</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">cov_mat0</span><span class="p">)</span>
+<span class="n">U</span><span class="p">,</span> <span class="n">S</span>
+<span class="c1"># output
+</span><span class="p">(</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.6838271</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.54800188</span><span class="p">,</span>  <span class="mf">0.23460994</span><span class="p">,</span>  <span class="mf">0.42075244</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.0893389</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.37316815</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.90845985</span><span class="p">,</span>  <span class="mf">0.16572505</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.66134448</span><span class="p">,</span>  <span class="mf">0.66745155</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.34192161</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01488372</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.29499584</span><span class="p">,</span>  <span class="mf">0.33903967</span><span class="p">,</span>  <span class="mf">0.05242605</span><span class="p">,</span>  <span class="mf">0.89178532</span><span class="p">]]),</span>
+ <span class="n">array</span><span class="p">([</span><span class="mf">2.70350985e+01</span><span class="p">,</span> <span class="mf">5.63156816e+00</span><span class="p">,</span> <span class="mf">1.10027031e-15</span><span class="p">,</span> <span class="mf">2.98724660e-16</span><span class="p">]))</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">U</code> is the eigenvector of covariance matrix. <code class="highlighter-rouge">S</code> is the corresponding eigenvalues.</p>
+
+<h5 id="2-use-eig-on-covariance-matrix">2) Use <code class="highlighter-rouge">eig</code> on covariance matrix</h5>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">eigVal</span><span class="p">,</span> <span class="n">eigVec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eig</span><span class="p">(</span><span class="n">cov_mat0</span><span class="p">)</span>
+<span class="n">eigVec</span><span class="p">,</span> <span class="n">eigVal</span>
+<span class="c1"># output
+</span><span class="p">(</span><span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.6838271</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.54800188</span><span class="p">,</span>  <span class="mf">0.35663984</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.1118191</span> <span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.0893389</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.37316815</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.80803817</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.78118693</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.66134448</span><span class="p">,</span>  <span class="mf">0.66745155</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.32878603</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.24175913</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.29499584</span><span class="p">,</span>  <span class="mf">0.33903967</span><span class="p">,</span>  <span class="mf">0.33433828</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.56462022</span><span class="p">]]),</span>
+ <span class="n">array</span><span class="p">([</span> <span class="mf">2.70350985e+01</span><span class="p">,</span>  <span class="mf">5.63156816e+00</span><span class="p">,</span>  <span class="mf">7.39044900e-16</span><span class="p">,</span> <span class="o">-</span><span class="mf">2.65008465e-16</span><span class="p">]))</span>
+</code></pre></div></div>
+<p><code class="highlighter-rouge">eigenVec</code> is the eigenvector of covariance, and <code class="highlighter-rouge">eigenVal</code> is the corresponding eigenvalues.</p>
+
+<p>As we can see, the result of <strong>SVD</strong> and <strong>Eigen decomposition</strong> is exactly the same. The reason is that covariance is symmetric positive semi-definite matrix</p>
+
+<h5 id="3-use-svd-directly-on-x">3) Use <code class="highlighter-rouge">svd</code> directly on <code class="highlighter-rouge">X</code></h5>
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">U1</span><span class="p">,</span> <span class="n">S1</span><span class="p">,</span> <span class="n">V1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">S1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span> <span class="n">V1</span><span class="o">.</span><span class="n">T</span>
+<span class="c1"># output
+</span><span class="p">(</span><span class="n">array</span><span class="p">([</span><span class="mf">2.70350985e+01</span><span class="p">,</span> <span class="mf">5.63156816e+00</span><span class="p">,</span> <span class="mf">1.51981102e-31</span><span class="p">]),</span>
+ <span class="n">array</span><span class="p">([[</span><span class="o">-</span><span class="mf">0.6838271</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.54800188</span><span class="p">,</span>  <span class="mf">0.44383838</span><span class="p">,</span>  <span class="mf">0.18730171</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.0893389</span> <span class="p">,</span> <span class="o">-</span><span class="mf">0.37316815</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.6141324</span> <span class="p">,</span>  <span class="mf">0.68964157</span><span class="p">],</span>
+        <span class="p">[</span><span class="o">-</span><span class="mf">0.66134448</span><span class="p">,</span>  <span class="mf">0.66745155</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.27868386</span><span class="p">,</span>  <span class="mf">0.19866357</span><span class="p">],</span>
+        <span class="p">[</span> <span class="mf">0.29499584</span><span class="p">,</span>  <span class="mf">0.33903967</span><span class="p">,</span>  <span class="mf">0.59007134</span><span class="p">,</span>  <span class="mf">0.67070513</span><span class="p">]]))</span>
+</code></pre></div></div>
+<p>The result shows that if we directly apply <code class="highlighter-rouge">svd</code> on <code class="highlighter-rouge">X</code>, the eigenvalue will be the square of covariance’s eigenvalues divided by $m-1$, $m$ is the number of data points. And the transpose of V is equal to the corresponding eigenvectors of the covariance.</p>
+
+<p>The result is quite easy to proof. Assuming we have:
+<script type="math/tex">X = U\Sigma V^\top</script>
+And we left-multiply $X^\top$ to both side of equation.</p>
+
+<script type="math/tex; mode=display">X^\top X = X^\top U\Sigma V^\top \\
+  X^\top X = V\Sigma^\top U^\top U\Sigma V^\top \\
+  X^\top X = V\Sigma^2V^\top</script>
+
+<p>And $X^\top X$ is the covariance of data matrix (Here we leave out $(m-1)$ for simplicity).</p>
+
+<h4 id="some-tricks">Some tricks:</h4>
+
+<ol>
+  <li>
+    <p>According to the definiton of $\mathbf{S}$, it is the covariance matrix of data set. So we could apply either svd or eigendecomposition algorithms to solve it. (Difference between svd and eigendecomposition if the matrix is not symmetrical.)</p>
+  </li>
+  <li>In practice, we prefer to use svd instead of eigendecomposition to implement PCA for two reasons:
+    <ol>
+      <li>We don’t need compute $X^\top X$ this step, it will lost some small values during the computation, like Lauchli matrix.</li>
+      <li>SVD is faster than eigendecomposition in many implementations.</li>
+    </ol>
+  </li>
+  <li>As we can see, zero-centered is not part of pre-processing of data. On the contrary, it is part of PCA algorithm.</li>
+</ol>
+
+<h3 id="pca-summary">PCA Summary:</h3>
+<ol>
+  <li>Evaluating the mean $\bar{x}$ and the covariance matrix $\mathbf{S}$ of the data set.</li>
+  <li>Finding the $M$ eigenvectors of $\mathbf{S}$ corresponding to the $M$ largest eigenvalues.</li>
+</ol>
+
+<h3 id="reference">Reference</h3>
+<p><a href="http://users.isr.ist.utl.pt/~wurmd/Livros/school/Bishop%20-%20Pattern%20Recognition%20And%20Machine%20Learning%20-%20Springer%20%202006.pdf">Pattern Recognition and Machine Learning</a></p>
+
+<p><a href="https://daiwk.github.io/assets/matrix+vector+derivatives+for+machine+learning.pdf">Derivatives of matrix and vector</a></p>
+
+<p><a href="https://www.cnblogs.com/bjwu/p/9280492.html">降维方法PCA与SVD的联系与区别</a></p>
+
+<p><a href="https://blog.csdn.net/Dark_Scope/article/details/53150883">从PCA和SVD的关系拾遗</a></p>
+
+  </article>
+
+  <!-- mathjax -->
+  
+  </div>
+
+      </div>
+    </div>
+
+    <footer class="site-footer">
+
+  <div class="wrap">
+
+    <!-- <h2 class="footer-heading">zzh's blog</h2> -->
+
+    <div class="footer-col-1 column">
+      <ul>
+        <li>zzh's blog</li>
+        <!-- <li><a href="mailto:"></a></li> -->
+      </ul>
+    </div>
+
+    <div class="footer-col-2 column">
+      <ul>
+        <li>
+          <a href="https://github.com/zzh2019bay">
+            <span class="icon github">
+              <svg version="1.1" class="github-icon-svg" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+                 viewBox="0 0 16 16" enable-background="new 0 0 16 16" xml:space="preserve">
+                <path fill-rule="evenodd" clip-rule="evenodd" fill="#C2C2C2" d="M7.999,0.431c-4.285,0-7.76,3.474-7.76,7.761
+                c0,3.428,2.223,6.337,5.307,7.363c0.388,0.071,0.53-0.168,0.53-0.374c0-0.184-0.007-0.672-0.01-1.32
+                c-2.159,0.469-2.614-1.04-2.614-1.04c-0.353-0.896-0.862-1.135-0.862-1.135c-0.705-0.481,0.053-0.472,0.053-0.472
+                c0.779,0.055,1.189,0.8,1.189,0.8c0.692,1.186,1.816,0.843,2.258,0.645c0.071-0.502,0.271-0.843,0.493-1.037
+                C4.86,11.425,3.049,10.76,3.049,7.786c0-0.847,0.302-1.54,0.799-2.082C3.768,5.507,3.501,4.718,3.924,3.65
+                c0,0,0.652-0.209,2.134,0.796C6.677,4.273,7.34,4.187,8,4.184c0.659,0.003,1.323,0.089,1.943,0.261
+                c1.482-1.004,2.132-0.796,2.132-0.796c0.423,1.068,0.157,1.857,0.077,2.054c0.497,0.542,0.798,1.235,0.798,2.082
+                c0,2.981-1.814,3.637-3.543,3.829c0.279,0.24,0.527,0.713,0.527,1.437c0,1.037-0.01,1.874-0.01,2.129
+                c0,0.208,0.14,0.449,0.534,0.373c3.081-1.028,5.302-3.935,5.302-7.362C15.76,3.906,12.285,0.431,7.999,0.431z"/>
+              </svg>
+            </span>
+            <span class="username">zzh2019bay</span>
+          </a>
+        </li>
+       </ul>
+    </div>
+
+    <div class="footer-col-3 column">
+      <p class="text">Learner | Practitioner</p>
+    </div>
+
+  </div>
+  
+</footer>
+
+
+    </body>
+</html>
